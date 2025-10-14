@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  # PostgreSQL база данных
+  postgres:
+    image: postgres:16-alpine
+    container_name: dbaas-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: dbaas-db
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dbaas-network
+
+  # Go-приложение
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dbaas-app
+    depends_on:
+      - postgres
+    environment:
+      CONFIG_PATH: /config.yaml
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: dbaas-db
+      DB_HOST: postgres
+      DB_PORT: 5432
+    ports:
+      - "8085:8080"
+    networks:
+      - dbaas-network
+
+  # Liquibase миграции
+  liquibase:
+    image: liquibase/liquibase:latest
+    container_name: dbaas-liquibase
+    depends_on:
+      - postgres
+    working_dir: /db
+    command: >
+      --classpath=drivers/postgresql-42.6.0.jar
+      --url=jdbc:postgresql://postgres:5432/dbaas-db
+      --username=${DB_USER}
+      --password=${DB_PASSWORD}
+      --changeLogFile=changelog.yaml
+      update
+    volumes:
+      - ./db:/db:ro
+    networks:
+      - dbaas-network
+
+
+networks:
+  dbaas-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
