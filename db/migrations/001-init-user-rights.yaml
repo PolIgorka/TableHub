@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001
+      author: "i.polezhaev"
+      changes:
+        - createTable:
+            tableName: user_rights
+            ifNotExists: true
+            columns:
+              - column:
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: password_hash
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: available_columns
+                  type: jsonb
+      rollback:
+        - dropTable:
+            tableName: user_rights
