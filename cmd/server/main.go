@@ -9,19 +9,30 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/dbaas/internal/server"
+	"github.com/dbaas/internal/storage"
+	db "github.com/dbaas/pkg/database"
 )
 
 func main() {
-	configPath := os.Getenv("CONFIG_PATH")
-	if configPath == "" {
-		configPath = "./config.yaml"
-	}
-	config := lo.Must(LoadConfig(configPath))
+	ctx := context.Background()
+	config := lo.Must(LoadConfig())
 
-	srv := server.New(config.Server)
+	managedDB := db.New(config.DB)
+	defer managedDB.Close(ctx)
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
+	userStorage := storage.NewUserRightsStorage(managedDB)
 
-	lo.Must0(srv.ListenAndServe(ctx))
+	app := server.New(config.Server, userStorage)
+
+	go func() {
+		if err := app.Run(); err != nil {
+			panic(err)
+		}
+	}()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+	<-stop
+
+	app.Shutdown(ctx)
 }

@@ -4,56 +4,58 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net"
 	"net/http"
+	"time"
 
-	"github.com/dbaas/internal/logger"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+
+	"github.com/dbaas/internal/server/routes"
+	"github.com/dbaas/internal/storage"
+	"github.com/dbaas/pkg/logger"
 )
 
-type Server struct {
-	httpServer *http.Server
-	config     ServerConfig
-	logger     *slog.Logger
+type AppServer struct {
+	router chi.Router
+	server *http.Server
+	logger *slog.Logger
 }
 
-func New(config ServerConfig) *Server {
-	mux := http.NewServeMux()
+func New(cfg ServerConfig, db storage.UserRightsStorage) *AppServer {
 	logger := logger.New("http-server")
 
+	r := chi.NewRouter()
+
+	// --- Middleware ---
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.RequestID)
+	r.Use(loggingMiddleware(logger))
+	r.Use(middleware.Timeout(10 * time.Second))
+	r.Use(contentTypeJsonMiddleware)
+
+	r.Route("/api/v1", func(r chi.Router) {
+		r.Group(routes.LoginRoutes(db, logger))
+	})
+
 	srv := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", config.Host, config.Port),
-		Handler: loggingMiddleware(mux, logger),
+		Addr:              fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
+		Handler:           r,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
-	logger.Info("server instance created")
-
-	return &Server{
-		httpServer: srv,
-		config:     config,
-		logger:     logger,
+	return &AppServer{
+		router: r,
+		server: srv,
+		logger: logger,
 	}
 }
 
-func (s *Server) ListenAndServe(ctx context.Context) error {
-    ln, err := net.Listen("tcp", s.httpServer.Addr)
-    if err != nil {
-        s.logger.Error("failed to listen", "addr", s.httpServer.Addr, "error", err)
-        return err
-    }
-
-    s.logger.Info("listening", "addr", ln.Addr().String())
-
-    go func() {
-        <-ctx.Done()
-        s.logger.Info("context canceled, shutting down")
-        _ = s.httpServer.Shutdown(context.Background())
-    }()
-
-    return s.httpServer.Serve(ln)
+func (s *AppServer) Run() error {
+	s.logger.Info("starting server", slog.String("addr", s.server.Addr))
+	return s.server.ListenAndServe()
 }
 
-
-func (s *Server) Shutdown(ctx context.Context) error {
-	s.logger.Info("shutting down server gracefully")
-	return s.httpServer.Shutdown(ctx)
+func (s *AppServer) Shutdown(ctx context.Context) error {
+	s.logger.Info("shutting down server")
+	return s.server.Shutdown(ctx)
 }

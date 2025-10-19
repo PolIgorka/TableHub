@@ -1,5 +1,5 @@
 # build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:1.23-alpine AS builder
 WORKDIR /app
 
 # устанавливаем git и сертификаты
@@ -23,6 +23,6 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certifi
 COPY --from=builder /bin/dbaas-server /bin/dbaas-server
 COPY config.yaml /config.yaml
 
-EXPOSE 8080
+EXPOSE 8081
 
 ENTRYPOINT ["/bin/dbaas-server"]
