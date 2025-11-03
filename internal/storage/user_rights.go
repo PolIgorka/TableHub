@@ -9,7 +9,7 @@ import (
 	"github.com/uptrace/bun"
 	"golang.org/x/crypto/bcrypt"
 
-	db "github.com/dbaas/pkg/database"
+	db "github.com/tablehub/pkg/database"
 )
 
 type UserRight struct {

@@ -8,16 +8,16 @@ import (
 
 	"github.com/samber/lo"
 
-	"github.com/dbaas/internal/server"
-	"github.com/dbaas/internal/storage"
-	db "github.com/dbaas/pkg/database"
+	"github.com/tablehub/internal/server"
+	"github.com/tablehub/internal/storage"
+	db "github.com/tablehub/pkg/database"
 )
 
 func main() {
 	ctx := context.Background()
 	config := lo.Must(LoadConfig())
 
-	managedDB := db.New(config.DB)
+	managedDB := db.New(config.DB.RightsConfig)
 	defer managedDB.Close(ctx)
 
 	userStorage := storage.NewUserRightsStorage(managedDB)

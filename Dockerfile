@@ -13,16 +13,16 @@ RUN go mod download
 COPY . .
 
 # собираем статический бинарник
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/dbaas-server ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/tablehub-server ./cmd/server
 
 # runtime stage
 FROM scratch
 
 # копируем сертификаты (для HTTPS)
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=builder /bin/dbaas-server /bin/dbaas-server
+COPY --from=builder /bin/tablehub-server /bin/tablehub-server
 COPY config.yaml /config.yaml
 
 EXPOSE 8081
 
-ENTRYPOINT ["/bin/dbaas-server"]
+ENTRYPOINT ["/bin/tablehub-server"]

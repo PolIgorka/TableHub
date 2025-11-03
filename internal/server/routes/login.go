@@ -9,8 +9,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	db "github.com/dbaas/internal/storage"
-	logs "github.com/dbaas/pkg/logger"
+	db "github.com/tablehub/internal/storage"
+	logs "github.com/tablehub/pkg/logger"
 )
 
 type LoginResponseBody struct {
