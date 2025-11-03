@@ -36,7 +36,6 @@ func New(config DBConfig) *ManagedDB {
 		config.Port,
 		config.Name,
 	)
-	fmt.Println(dsn)
 
 	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
 	db := bun.NewDB(sqldb, pgdialect.New())

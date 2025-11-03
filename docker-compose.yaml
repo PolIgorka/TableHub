@@ -10,6 +10,11 @@ services:
       POSTGRES_USER: ${RIGHTS_DB_USER}
       POSTGRES_PASSWORD: ${RIGHTS_DB_PASSWORD}
       POSTGRES_DB: rights-db
+    healthcheck:
+      test: "pg_isready -U ${RIGHTS_DB_USER} -d rights-db"
+      interval: 5s
+      timeout: 3s
+      retries: 5
     ports:
       - "5435:5432"
     volumes:
@@ -19,12 +24,11 @@ services:
 
   # Go-приложение
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     container_name: tablehub-app
     depends_on:
-      - rights-postgres
+      rights-postgres:
+        condition: service_healthy
     environment:
       CONFIG_PATH: /config.yaml
       RIGHTS_DB_USER: ${RIGHTS_DB_USER}
@@ -39,7 +43,8 @@ services:
     image: liquibase/liquibase:latest
     container_name: rights-liquibase
     depends_on:
-      - rights-postgres
+      rights-postgres:
+        condition: service_healthy
     working_dir: /db
     command: >
       --classpath=drivers/postgresql-42.6.0.jar
@@ -53,7 +58,6 @@ services:
       - ./db/drivers:/db/drivers:ro
     networks:
       - tablehub-network
-
 
 networks:
   tablehub-network:
