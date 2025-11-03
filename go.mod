@@ -1,4 +1,4 @@
-module github.com/dbaas
+module github.com/tablehub
 
 go 1.23.0
 

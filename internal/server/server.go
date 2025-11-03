@@ -10,9 +10,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	"github.com/dbaas/internal/server/routes"
-	"github.com/dbaas/internal/storage"
-	"github.com/dbaas/pkg/logger"
+	"github.com/tablehub/internal/server/routes"
+	"github.com/tablehub/internal/storage"
+	"github.com/tablehub/pkg/logger"
 )
 
 type AppServer struct {

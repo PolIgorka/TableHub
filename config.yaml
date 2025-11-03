@@ -3,6 +3,7 @@ http-server:
   port: 8081
 
 database:
-  host: postgres
-  port: 5432
-  name: dbaas-db
+  rights:
+    host: rights-postgres
+    port: 5432
+    name: rights-db

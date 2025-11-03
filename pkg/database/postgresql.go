@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/dbaas/pkg/logger"
+	"github.com/tablehub/pkg/logger"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -36,6 +36,7 @@ func New(config DBConfig) *ManagedDB {
 		config.Port,
 		config.Name,
 	)
+	fmt.Println(dsn)
 
 	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
 	db := bun.NewDB(sqldb, pgdialect.New())

@@ -3,14 +3,18 @@ package main
 import (
 	"os"
 
-	"github.com/dbaas/internal/server"
-	db "github.com/dbaas/pkg/database"
+	"github.com/tablehub/internal/server"
+	db "github.com/tablehub/pkg/database"
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
 	Server server.ServerConfig `yaml:"http-server"`
-	DB     db.DBConfig         `yaml:"database"`
+	DB     DataBase         `yaml:"database"`
+}
+
+type DataBase struct {
+	RightsConfig db.DBConfig         `yaml:"rights"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -29,11 +33,11 @@ func LoadConfig() (*Config, error) {
 		return nil, err
 	}
 
-	if db_user := os.Getenv("DB_USER"); db_user != "" {
-		config.DB.User = db_user
+	if db_user := os.Getenv("RIGHTS_DB_USER"); db_user != "" {
+		config.DB.RightsConfig.User = db_user
 	}
-	if db_password := os.Getenv("DB_PASSWORD"); db_password != "" {
-		config.DB.Password = db_password
+	if db_password := os.Getenv("RIGHTS_DB_PASSWORD"); db_password != "" {
+		config.DB.RightsConfig.Password = db_password
 	}
 	return &config, nil
 }

@@ -1,62 +1,63 @@
 version: "3.9"
 
 services:
-  # PostgreSQL база данных
-  postgres:
+  # PostgreSQL базы данных
+  rights-postgres:
     image: postgres:16-alpine
-    container_name: dbaas-postgres
+    container_name: rights-postgres
     restart: always
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: dbaas-db
+      POSTGRES_USER: ${RIGHTS_DB_USER}
+      POSTGRES_PASSWORD: ${RIGHTS_DB_PASSWORD}
+      POSTGRES_DB: rights-db
     ports:
       - "5435:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - rights_data:/var/lib/postgresql/data
     networks:
-      - dbaas-network
+      - tablehub-network
 
   # Go-приложение
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: dbaas-app
+    container_name: tablehub-app
     depends_on:
-      - postgres
+      - rights-postgres
     environment:
       CONFIG_PATH: /config.yaml
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
+      RIGHTS_DB_USER: ${RIGHTS_DB_USER}
+      RIGHTS_DB_PASSWORD: ${RIGHTS_DB_PASSWORD}
     ports:
       - "8081:8081"
     networks:
-      - dbaas-network
+      - tablehub-network
 
   # Liquibase миграции
-  liquibase:
+  rights-liquibase:
     image: liquibase/liquibase:latest
-    container_name: dbaas-liquibase
+    container_name: rights-liquibase
     depends_on:
-      - postgres
+      - rights-postgres
     working_dir: /db
     command: >
       --classpath=drivers/postgresql-42.6.0.jar
-      --url=jdbc:postgresql://postgres:5432/dbaas-db
-      --username=${DB_USER}
-      --password=${DB_PASSWORD}
-      --changeLogFile=changelog.yaml
+      --url=jdbc:postgresql://rights-postgres:5432/rights-db
+      --username=${RIGHTS_DB_USER}
+      --password=${RIGHTS_DB_PASSWORD}
+      --changeLogFile=./rights/changelog.yaml
       update
     volumes:
-      - ./db:/db:ro
+      - ./db/rights:/db/rights:ro
+      - ./db/drivers:/db/drivers:ro
     networks:
-      - dbaas-network
+      - tablehub-network
 
 
 networks:
-  dbaas-network:
+  tablehub-network:
     driver: bridge
 
 volumes:
-  postgres_data:
+  rights_data:
