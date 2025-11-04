@@ -10,11 +10,12 @@ import (
 
 type Config struct {
 	Server server.ServerConfig `yaml:"http-server"`
-	DB     DataBase         `yaml:"database"`
+	DB     DataBase            `yaml:"database"`
 }
 
 type DataBase struct {
-	RightsConfig db.DBConfig         `yaml:"rights"`
+	RightsConfig db.DBConfig `yaml:"rights"`
+	TablesConfig db.DBConfig `yaml:"tables"`
 }
 
 func LoadConfig() (*Config, error) {

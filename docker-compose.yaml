@@ -22,6 +22,26 @@ services:
     networks:
       - tablehub-network
 
+  postgres-data:
+    image: postgres:16-alpine
+    container_name: postgres-data
+    restart: always
+    environment:
+      POSTGRES_USER: ${TABLES_DB_USER}
+      POSTGRES_PASSWORD: ${TABLES_DB_PASSWORD}
+      POSTGRES_DB: tables-db
+    healthcheck:
+      test: "pg_isready -U ${TABLES_DB_USER} -d tables-db"
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - tables_data:/var/lib/postgresql/data
+    networks:
+      - tablehub-network
+    expose:
+      - "5432"
+
   # Go-приложение
   app:
     build: .
@@ -65,3 +85,4 @@ networks:
 
 volumes:
   rights_data:
+  tables_data:
