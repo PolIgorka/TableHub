@@ -19,6 +19,7 @@ type DBConfig struct {
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	Name     string `yaml:"name"`
+	Type 	 string `yaml:"type"`
 }
 
 type ManagedDB struct {
@@ -39,7 +40,9 @@ func New(config DBConfig) *ManagedDB {
 
 	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
 	db := bun.NewDB(sqldb, pgdialect.New())
-	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
+	if config.Type == "debug" {
+		db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
+	}
 
 	err := db.PingContext(context.Background())
 	if err != nil {

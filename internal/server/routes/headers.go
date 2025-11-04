@@ -29,9 +29,6 @@ func extractBasicAuth(r *http.Request) (string, string, error) {
 	if len(parts) != 2 {
 		return "", "", ErrInvalidAuth
 	}
-	if len(parts[1]) > 72 {
-		return "", "", ErrInvalidAuth
-	}
 
 	return parts[0], parts[1], nil
 }

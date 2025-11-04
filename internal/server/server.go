@@ -21,15 +21,15 @@ type AppServer struct {
 	logger *slog.Logger
 }
 
-func New(cfg ServerConfig, db storage.UserRightsStorage) *AppServer {
+func New(cfg ServerConfig, db storage.UsersStorage) *AppServer {
 	logger := logger.New("http-server")
 
 	r := chi.NewRouter()
 
 	// --- Middleware ---
+	r.Use(loggingMiddleware(logger))
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RequestID)
-	r.Use(loggingMiddleware(logger))
 	r.Use(middleware.Timeout(10 * time.Second))
 	r.Use(contentTypeJsonMiddleware)
 

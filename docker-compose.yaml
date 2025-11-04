@@ -22,6 +22,26 @@ services:
     networks:
       - tablehub-network
 
+  postgres-data:
+    image: postgres:16-alpine
+    container_name: postgres-data
+    restart: always
+    environment:
+      POSTGRES_USER: ${TABLES_DB_USER}
+      POSTGRES_PASSWORD: ${TABLES_DB_PASSWORD}
+      POSTGRES_DB: tables-db
+    healthcheck:
+      test: "pg_isready -U ${TABLES_DB_USER} -d tables-db"
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - tables_data:/var/lib/postgresql/data
+    networks:
+      - tablehub-network
+    expose:
+      - "5432"
+
   # Go-приложение
   app:
     build: .
@@ -33,6 +53,8 @@ services:
       CONFIG_PATH: /config.yaml
       RIGHTS_DB_USER: ${RIGHTS_DB_USER}
       RIGHTS_DB_PASSWORD: ${RIGHTS_DB_PASSWORD}
+      TABLES_DB_USER: ${TABLES_DB_USER}
+      TABLES_DB_PASSWORD: ${TABLES_DB_PASSWORD}
     ports:
       - "8081:8081"
     networks:
@@ -65,3 +87,4 @@ networks:
 
 volumes:
   rights_data:
+  tables_data:

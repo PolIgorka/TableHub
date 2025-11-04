@@ -10,11 +10,12 @@ import (
 
 type Config struct {
 	Server server.ServerConfig `yaml:"http-server"`
-	DB     DataBase         `yaml:"database"`
+	DB     DataBase            `yaml:"database"`
 }
 
 type DataBase struct {
-	RightsConfig db.DBConfig         `yaml:"rights"`
+	RightsConfig db.DBConfig `yaml:"rights"`
+	TablesConfig db.DBConfig `yaml:"tables"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -38,6 +39,12 @@ func LoadConfig() (*Config, error) {
 	}
 	if db_password := os.Getenv("RIGHTS_DB_PASSWORD"); db_password != "" {
 		config.DB.RightsConfig.Password = db_password
+	}
+	if db_user := os.Getenv("TABLES_DB_USER"); db_user != "" {
+		config.DB.TablesConfig.User = db_user
+	}
+	if db_password := os.Getenv("TABLES_DB_PASSWORD"); db_password != "" {
+		config.DB.TablesConfig.Password = db_password
 	}
 	return &config, nil
 }

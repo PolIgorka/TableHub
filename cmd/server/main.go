@@ -17,10 +17,12 @@ func main() {
 	ctx := context.Background()
 	config := lo.Must(LoadConfig())
 
-	managedDB := db.New(config.DB.RightsConfig)
-	defer managedDB.Close(ctx)
+	rightsDB := db.New(config.DB.RightsConfig)
+	defer rightsDB.Close(ctx)
+	tablesDB := db.New(config.DB.TablesConfig)
+	defer tablesDB.Close(ctx)
 
-	userStorage := storage.NewUserRightsStorage(managedDB)
+	userStorage := storage.NewUsersStorage(rightsDB)
 
 	app := server.New(config.Server, userStorage)
 
