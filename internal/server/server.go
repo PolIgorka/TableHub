@@ -27,9 +27,9 @@ func New(cfg ServerConfig, db storage.UsersStorage) *AppServer {
 	r := chi.NewRouter()
 
 	// --- Middleware ---
+	r.Use(loggingMiddleware(logger))
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RequestID)
-	r.Use(loggingMiddleware(logger))
 	r.Use(middleware.Timeout(10 * time.Second))
 	r.Use(contentTypeJsonMiddleware)
 

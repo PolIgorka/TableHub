@@ -53,6 +53,8 @@ services:
       CONFIG_PATH: /config.yaml
       RIGHTS_DB_USER: ${RIGHTS_DB_USER}
       RIGHTS_DB_PASSWORD: ${RIGHTS_DB_PASSWORD}
+      TABLES_DB_USER: ${TABLES_DB_USER}
+      TABLES_DB_PASSWORD: ${TABLES_DB_PASSWORD}
     ports:
       - "8081:8081"
     networks:

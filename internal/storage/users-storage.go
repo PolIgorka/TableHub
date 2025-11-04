@@ -16,7 +16,7 @@ import (
 type UsersTableDTO struct {
 	bun.BaseModel `bun:"table:users"`
 
-	UserID		 uuid.UUID 		   `bun:"user_id,type:uuid,pk"`
+	UserID		 uuid.UUID 		   `bun:"user_id,type:uuid,pk,default:gen_random_uuid()"`
 	Login		 string			   `bun:"login,type:varchar(32)"`
 	PasswordHash string			   `bun:"password_hash,type:varchar(255)"`
 	Rights		 []*RightsTableDTO `bun:"rel:has-many,join:user_id=user_id"`

@@ -10,7 +10,7 @@ import (
 type RightsTableDTO struct {
 	bun.BaseModel `bun:"table:rights"`
 
-	RightID          uuid.UUID 		 `bun:"right_id,type:uuid,pk"`
+	RightID          uuid.UUID 		 `bun:"right_id,type:uuid,pk,default:gen_random_uuid()"`
 	UserID           uuid.UUID 		 `bun:"user_id,type:uuid"`
 	TableID          uuid.UUID 		 `bun:"table_id,type:uuid"`
 	RightsMask       int       		 `bun:"rights_mask,type:integer"`

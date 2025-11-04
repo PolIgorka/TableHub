@@ -10,7 +10,7 @@ import (
 type TablesTableDTO struct {
 	bun.BaseModel `bun:"table:tables"`
 
-	TableID uuid.UUID `bun:"table_id,type:uuid,pk"`
+	TableID uuid.UUID `bun:"table_id,type:uuid,pk,default:gen_random_uuid()"`
 	Name    string    `bun:"name,type:varchar(32)"`
 	Columns []string   `bun:"columns,type:jsonb"`
 	Rights  []*RightsTableDTO `bun:"rel:has-many,join:table_id=table_id"`

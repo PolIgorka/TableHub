@@ -60,7 +60,7 @@ func loginHandler(storage db.UsersStorage, logger *slog.Logger) func(w http.Resp
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
