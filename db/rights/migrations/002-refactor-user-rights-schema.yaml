@@ -1,0 +1,103 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-refactor-user-rights-schema
+      author: "i.polezhaev"
+      changes:
+        - sql:
+            sql: CREATE EXTENSION IF NOT EXISTS pgcrypto;
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: user_id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: login
+                  type: VARCHAR(32)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: password_hash
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: tables
+            columns:
+              - column:
+                  name: table_id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(32)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: columns
+                  type: JSONB
+                  constraints:
+                    nullable: false
+
+        - createTable:
+            tableName: rights
+            columns:
+              - column:
+                  name: right_id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: table_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rights_mask
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: available_columns
+                  type: JSONB
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: rights
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: user_id
+            constraintName: fk_rights_users
+
+        - addForeignKeyConstraint:
+            baseTableName: rights
+            baseColumnNames: table_id
+            referencedTableName: tables
+            referencedColumnNames: table_id
+            constraintName: fk_rights_tables
+
+        - preConditions:
+            - onFail: CONTINUE
+            - tableExists:
+                tableName: user_rights
+        - dropTable:
+            tableName: user_rights
+            cascadeConstraints: true

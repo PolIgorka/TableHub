@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
       file: rights/migrations/001-init-user-rights.yaml
+  - include:
+      file: migrations/002-refactor-user-rights-schema.yaml
