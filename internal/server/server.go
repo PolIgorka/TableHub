@@ -21,7 +21,7 @@ type AppServer struct {
 	logger *slog.Logger
 }
 
-func New(cfg ServerConfig, db storage.UserRightsStorage) *AppServer {
+func New(cfg ServerConfig, db storage.UsersStorage) *AppServer {
 	logger := logger.New("http-server")
 
 	r := chi.NewRouter()

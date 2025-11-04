@@ -22,7 +22,7 @@ func main() {
 	tablesDB := db.New(config.DB.TablesConfig)
 	defer tablesDB.Close(ctx)
 
-	userStorage := storage.NewUserRightsStorage(rightsDB)
+	userStorage := storage.NewUsersStorage(rightsDB)
 
 	app := server.New(config.Server, userStorage)
 
